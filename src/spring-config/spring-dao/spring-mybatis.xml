@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/task" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+    <!-- 引入jdbc配置文件 -->
+    <context:property-placeholder location="classpath:/properties-config/dataSource.properties" ignore-unresolvable="true"
+                                  xmlns:context="http://www.springframework.org/schema/context"/>
+    <!--创建jdbc数据源 -->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="oracle.jdbc.OracleDriver"/>
+        <property name="url" value="${baseDB.url}"/>
+        <property name="username" value="ITS_DATA"/>
+        <property name="password" value="ITS_DATA"/>
+    </bean>
+
+    <!-- mybatis文件配置，扫描所有mapper文件 -->
+    <bean id="sqlSessionFactory"
+          class="org.mybatis.spring.SqlSessionFactoryBean"
+          p:dataSource-ref="dataSource"
+          p:mapperLocations="classpath:com.ahkeli.myBatisMapper/*.xml"/>
+          <!--p:configLocation="classpath:mybatisConfig.xml"-->
+
+    <!-- 扫描com这个包里的所有类，把里面配上相应注解的类全都放在容器中进行管理 -->
+    <context:component-scan base-package="com"/>
+    <!-- 添加注解驱动 -->
+    <mvc:annotation-driven/>
+    <!-- Mapper接口所在包名，Spring会自动查找其下的Mapper -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.ahkeli.myBatisMapper"/>
+    </bean>
+    <!--<bean id="getDrawLineData" class="com.ahkeli.map.GetImpRoadImgData">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>-->
+    <bean id="getTheSqlSession" class="com.ahkeli.dao.GetSqlSession" init-method="getSqlSessionInstance">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="dbInfoDao" class=" com.ahkeli.dao.DBInfoDao">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <!--<bean id="getUserPriData" class="com.ahkeli.menu.UserPrivilegeData" init-method="getData">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>-->
+
+    <!--<bean id="testMapper" class="org.mybatis.spring.mapper.MapperFactoryBean">
+        <property name="mapperInterface" value="com.ahkeli.myBatisMapper.ITestMapper"/>
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="initFileType" class=" com.ahkeli.services.impl.InitFileTypeImpl">
+        <property name="dbInfoDao" ref="dbInfoDao"/>
+    </bean>
+    <bean id="dbInfoDao" class=" com.ahkeli.dao.DBInfoDao">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    <bean id="dbInsert" class=" com.ahkeli.dao.DBinsert">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+
+    <bean id="dataSave" class=" com.ahkeli.services.impl.DataSaveImpl">
+        <property name="sqlSessionFactory" ref="sqlSessionFactory"/>
+    </bean>
+    &lt;!&ndash;从数据库中读取配置文件信息到内存中 &ndash;&gt;
+    <bean id="iInitFileData" class="com.ahkeli.services.impl.InitFileDataImpl">
+        <property name="initFileType" ref="initFileType"></property>
+    </bean>-->
+
+</beans>

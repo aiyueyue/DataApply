@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ahkeli.myBatisMapper.UserPrivilegeMapper">
+
+    <resultMap id="BaseResultMap" type="com.ahkeli.model.PrivilegeInfo" >
+        <id column="PRIVILEGE_ID" property="privilegeId" jdbcType="DECIMAL" />
+        <result column="PRIVILEGE_NAME" property="privilegeName" jdbcType="VARCHAR" />
+        <result column="STATUS" property="status" jdbcType="DECIMAL" />
+        <result column="PARENT_PRIVILEGE" property="parentPrivilege" jdbcType="DECIMAL" />
+        <result column="NODE_TYPE" property="nodeType" jdbcType="DECIMAL" />
+        <result column="FUNCTION_URL" property="functionUrl" jdbcType="VARCHAR" />
+        <result column="PRI_ORDER" property="priOrder" jdbcType="DECIMAL" />
+        <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="CREATE_USER" property="createUser" jdbcType="VARCHAR" />
+        <result column="IMG_URL" property="imgUrl" jdbcType="VARCHAR" />
+        <result column="IMG_TYPE" property="imgType" jdbcType="DECIMAL" />
+        <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+    </resultMap>
+    <select id="selectUserPrivilegeData" parameterType="Integer" resultMap="BaseResultMap">
+        select distinct *
+        from SYS_PRIVILEGE_INFO,(select SYS_REL_ROLE_PRIVILEGE.PRIVILEGE_ID  from SYS_REL_ROLE_PRIVILEGE ,(
+        select * from SYS_USER_INFO,SYS_REL_USER_ROLE
+        WHERE SYS_REL_USER_ROLE.USER_ID = #{userId} and SYS_USER_INFO.USER_ID=SYS_REL_USER_ROLE.USER_ID) t1
+        WHERE t1.ROLE_ID=SYS_REL_ROLE_PRIVILEGE.ROLE_ID) t2
+        WHERE t2.PRIVILEGE_ID=SYS_PRIVILEGE_INFO.PRIVILEGE_ID /*and SYS_PRIVILEGE_INFO.status = 1;*/
+    </select>
+    <select id="selectUserRole" parameterType="Integer" resultType="String">
+        select ROLE_NAME from
+        (select ROLE_NAME,ROLE_LEVEL from SYS_ROLE_INFO right join
+        (select * from SYS_USER_INFO full join SYS_REL_USER_ROLE on SYS_USER_INFO.user_id = SYS_REL_USER_ROLE.User_Id
+        where  SYS_USER_INFO.user_id = #{userId}) t1 on SYS_ROLE_INFO.ROLE_ID = t1.ROLE_ID ) t2
+        where t2.ROLE_LEVEL = （select min(ROLE_LEVEL) from (select ROLE_NAME,ROLE_LEVEL from SYS_ROLE_INFO full join
+        (select * from SYS_USER_INFO full join SYS_REL_USER_ROLE on SYS_USER_INFO.user_id = SYS_REL_USER_ROLE.User_Id
+        where  SYS_USER_INFO.user_id = #{userId}) t1 on SYS_ROLE_INFO.ROLE_ID = t1.ROLE_ID ))
+    </select>
+</mapper>

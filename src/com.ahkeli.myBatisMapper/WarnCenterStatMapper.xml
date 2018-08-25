@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ahkeli.myBatisMapper.WarnCenterStatMapper" >
+    <select id="selectOnePage" parameterType="Map" resultType="java.util.HashMap">
+   SELECT WARN_STAT_ID, DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA, STAT_TIME, DB_TIME,WARN_LEVEL, DEAL_STATUS,DEAL_USER,DEAL_DESC
+   FROM
+     (SELECT WARN_STAT_ID, DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA, STAT_TIME, DB_TIME,WARN_LEVEL, DEAL_STATUS,DEAL_USER,DEAL_DESC, rownum as num
+     FROM
+        (select WARN_STAT_ID,DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA,to_char(STAT_TIME,'yyyy-MM-dd HH:mm:ss') STAT_TIME,to_char(DB_TIME,'yyyy-MM-dd HH-mm-ss') DB_TIME,dic.DIC_VALUE  WARN_LEVEL,DEAL_STATUS,DEAL_USER,DEAL_DESC
+        from
+        (
+        select WARN_STAT_ID, DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA, STAT_TIME, DB_TIME,WARN_LEVEL, dic.DIC_VALUE DEAL_STATUS,DEAL_USER,DEAL_DESC from
+        (
+        select
+        WARN_STAT_ID, dic.DIC_VALUE DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA, STAT_TIME, DB_TIME,WARN_LEVEL, DEAL_STATUS,DEAL_USER,DEAL_DESC
+        from WARN_CENTER_DEVICE_STAT warn , DATA_DICTIONARY dic WHERE warn.DEVICE_TYPE=dic.DIC_KEY AND dic.DIC_TYPE=0
+        ) tempTable, DATA_DICTIONARY dic WHERE tempTable.DEAL_STATUS=dic.DIC_KEY AND dic.DIC_TYPE=1
+        ) tempTable5,DATA_DICTIONARY dic
+        where  temptable5.WARN_LEVEL=dic.DIC_KEY AND dic.DIC_TYPE=2 order by ${orderKey} ${orderType}
+        )
+        )temptable3 WHERE tempTable3.num between #{recordStartIndex} and #{recordEndIndex}
+    </select>
+
+    <!-- 通过设备类型查找（地磁，微波等）-->
+    <select id="selectOnePageSearch1" parameterType="Map" resultType="java.util.HashMap">
+        SELECT WARN_STAT_ID,DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA, STAT_TIME,
+        DB_TIME, WARN_LEVEL,DEAL_STATUS,DEAL_USER,DEAL_DESC FROM
+        (SELECT WARN_STAT_ID,DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA, STAT_TIME,
+        DB_TIME, WARN_LEVEL,DEAL_STATUS,DEAL_USER,DEAL_DESC, rownum as num FROM
+        (SELECT WARN_STAT_ID,DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA, STAT_TIME,
+        DB_TIME,dic.DIC_VALUE WARN_LEVEL,DEAL_STATUS,DEAL_USER,DEAL_DESC
+        FROM(
+        select WARN_STAT_ID,DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA,to_char(STAT_TIME,
+        'yyyy-MM-dd HH:mm:ss') STAT_TIME,to_char(DB_TIME,'yyyy-MM-dd HH-mm-ss')
+        DB_TIME,WARN_LEVEL,dic.DIC_VALUE DEAL_STATUS,DEAL_USER,DEAL_DESC
+        from
+        (
+        select WARN_STAT_ID,dic.DIC_VALUE DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA,
+        STAT_TIME,DB_TIME,WARN_LEVEL,DEAL_STATUS,DEAL_USER,DEAL_DESC from
+        (
+        select
+        WARN_STAT_ID,DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA, STAT_TIME,
+        DB_TIME,WARN_LEVEL,DEAL_STATUS,DEAL_USER,DEAL_DESC
+        from WARN_CENTER_DEVICE_STAT warn ,DATA_DICTIONARY dic
+        <where>
+            <if test="searchKey!=null and searchKey!=''">
+                warn.DEVICE_TYPE=dic.DIC_KEY AND DIC_VALUE LIKE '%${searchKey}%' AND dic.DIC_TYPE=0
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                AND to_date(#{endTime},'yyyy-mm-dd hh24:mi:ss')>STAT_TIME
+            </if>
+            <if test="beginTime!=null and beginTime!=''">
+                AND STAT_TIME>to_date(#{beginTime},'yyyy-mm-dd hh24:mi:ss')
+            </if>
+        </where>
+        ) tempTable,DATA_DICTIONARY dic WHERE tempTable.DEVICE_TYPE=dic.DIC_KEY AND dic.DIC_TYPE=0
+        ) tempTable2,DATA_DICTIONARY dic
+        where  tempTable2.DEAL_STATUS=dic.DIC_KEY
+        AND dic.DIC_TYPE=1
+        ) temptable5,DATA_DICTIONARY dic WHERE temptable5.WARN_LEVEL=dic.DIC_KEY AND dic.DIC_TYPE=2 order by ${orderKey} ${orderType}
+        )
+        )temptable4 WHERE tempTable4.num between #{recordStartIndex} and #{recordEndIndex}
+    </select>
+
+    <!-- 通过路段查找-->
+    <select id="selectOnePageSearch2" parameterType="Map" resultType="java.util.HashMap">
+        select WARN_STAT_ID,DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA,to_char(STAT_TIME,'yyyy-MM-dd HH:mm:ss') STAT_TIME,to_char(DB_TIME,'yyyy-MM-dd HH-mm-ss') DB_TIME,WARN_LEVEL,DEAL_STATUS,DEAL_USER,DEAL_DESC
+        from
+        (
+        select tempTable.*, rownum as num from
+        (
+        select
+        WARN_STAT_ID,DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA, STAT_TIME, DB_TIME,WARN_LEVEL,DEAL_STATUS,DEAL_USER,DEAL_DESC
+        from WARN_CENTER_DEVICE_STAT warn ,DEVICE_BASE_INFO dev,DATA_DICTIONARY_CHAR dic WHERE warn.DEVICE_ID=dev.DEVICE_ID AND dev.SECTION_ID=dic.DIC_KEY AND DIC_VALUE LIKE '%${searchKey}%'
+        order by ${orderKey} ${orderType}
+        ) tempTable
+        ) tempTable2
+        where tempTable2.num between #{recordStartIndex} and #{recordEndIndex}
+    </select>
+
+    <!-- 通过设备类型查找-->
+    <select id="selectOnePageSearch3" parameterType="Map" resultType="java.util.HashMap">
+        select WARN_ID,WARN_TYPE,WARN_NO,WARN_SRC,WARN_SRC_TYPE,WARN_DESC,to_char(CREATE_TIME,'yyyy-MM-dd HH:mm:ss') CREATE_TIME,to_char(DB_TIME,'yyyy-MM-dd HH:mm:ss') DB_TIME,WARN_STATUS,DEAL_STATUS,DEAL_USER,DEAL_DESC
+        from
+        (
+        select tempTable.*, rownum as num from
+        (
+        select
+        WARN_ID,WARN_TYPE,WARN_NO,WARN_SRC,WARN_SRC_TYPE,WARN_DESC,CREATE_TIME,DB_TIME,WARN_STATUS,DEAL_STATUS,DEAL_USER,DEAL_DESC
+        from WARN_CENTER_DETAIL warn ,DEVICE_BASE_INFO dev,DATA_DICTIONARY_CHAR dic WHERE warn.WARN_TYPE=dev.DEVICE_ID AND dev.TYPE_ID=dic.DIC_KEY AND DIC_VALUE LIKE '%${searchKey}%'
+        order by ${orderKey} ${orderType}
+        ) tempTable
+        ) tempTable2
+        where tempTable2.num between #{recordStartIndex} and #{recordEndIndex}
+    </select>
+
+    <!-- 通过设备建设商查询-->
+    <select id="selectOnePageSearch4" parameterType="Map" resultType="java.util.HashMap">
+        select WARN_STAT_ID,DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA,to_char(STAT_TIME,'yyyy-MM-dd HH:mm:ss') STAT_TIME,to_char(DB_TIME,'yyyy-MM-dd HH-mm-ss') DB_TIME,WARN_LEVEL,DEAL_STATUS,DEAL_USER,DEAL_DESC
+        from
+        (
+        select tempTable.*, rownum as num from
+        (
+        select
+        WARN_STAT_ID,DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA, STAT_TIME, DB_TIME,WARN_LEVEL,DEAL_STATUS,DEAL_USER,DEAL_DESC
+        from WARN_CENTER_DEVICE_STAT warn ,DEVICE_EXT_INFO dev,DATA_DICTIONARY_CHAR dic WHERE warn.DEVICE_ID=dev.DEVICE_ID AND dev.BUILD_MERCHANT_ID=dic.DIC_KEY AND DIC_VALUE LIKE '%${searchKey}%'
+        order by ${orderKey} ${orderType}
+        ) tempTable
+        ) tempTable2
+        where tempTable2.num between #{recordStartIndex} and #{recordEndIndex}
+    </select>
+
+    <!-- 通过时间查找-->
+    <select id="selectOnePageSearchTime" parameterType="Map" resultType="java.util.HashMap">
+        select WARN_STAT_ID,DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA, STAT_TIME, DB_TIME,WARN_LEVEL,
+        DEAL_STATUS,DEAL_USER,DEAL_DESC FROM
+        (SELECT WARN_STAT_ID,DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA, STAT_TIME, DB_TIME,WARN_LEVEL,
+        DEAL_STATUS,DEAL_USER,DEAL_DESC, rownum as num
+        FROM (
+        select WARN_STAT_ID,DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA,to_char(STAT_TIME,
+        'yyyy-MM-dd HH:mm:ss') STAT_TIME,to_char(DB_TIME,'yyyy-MM-dd HH-mm-ss') DB_TIME,dic.DIC_VALUE WARN_LEVEL,
+        DEAL_STATUS,DEAL_USER,DEAL_DESC
+        from
+        (
+        select WARN_STAT_ID,DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA, STAT_TIME,
+        DB_TIME,WARN_LEVEL,dic.DIC_VALUE DEAL_STATUS,DEAL_USER,DEAL_DESC from
+        (
+        select
+        WARN_STAT_ID,dic.DIC_VALUE DEVICE_TYPE,DEVICE_ID,OUGHT_DATA,LOSS_DATA,ERROR_DATA, STAT_TIME,
+        DB_TIME,WARN_LEVEL,DEAL_STATUS,DEAL_USER,DEAL_DESC
+        from WARN_CENTER_DEVICE_STAT warn, DATA_DICTIONARY dic WHERE warn.DEVICE_TYPE=dic.DIC_KEY AND dic.DIC_TYPE=0
+        <if test="endTime!=null and endTime!=''">
+            AND to_date(#{endTime},'yyyy-mm-dd hh24:mi:ss')>STAT_TIME
+        </if>
+        <if test="beginTime!=null and beginTime!=''">
+            AND STAT_TIME>to_date(#{beginTime},'yyyy-mm-dd hh24:mi:ss')
+        </if>
+        ) tempTable,DATA_DICTIONARY dic WHERE tempTable.DEAL_STATUS=dic.DIC_KEY AND dic.DIC_TYPE=1
+        ) tempTable5,DATA_DICTIONARY dic
+        where temptable5.WARN_LEVEL=dic.DIC_KEY AND dic.DIC_TYPE=2 order by ${orderKey} ${orderType}
+        )
+        )temptable3 WHERE tempTable3.num between #{recordStartIndex} and #{recordEndIndex}
+    </select>
+
+<!--查找明细-->
+
+
+    <select id="getDataSize" resultType="Integer">
+        select count(*) from WARN_CENTER_DEVICE_STAT
+    </select>
+
+    <select id="getDataSearch1" resultType="Integer" parameterType="Map">
+        SELECT COUNT (*) FROM WARN_CENTER_DEVICE_STAT warn,DATA_DICTIONARY dic
+        <where>
+            <if test="searchKey!=null and searchKey!=''">
+                warn.DEVICE_TYPE=dic.DIC_KEY AND DIC_VALUE LIKE '%${searchKey}%' AND dic.DIC_TYPE=0
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                AND to_date(#{endTime},'yyyy-mm-dd hh24:mi:ss')>STAT_TIME
+            </if>
+            <if test="beginTime!=null and beginTime!=''">
+                AND STAT_TIME>to_date(#{beginTime},'yyyy-mm-dd hh24:mi:ss')
+            </if>
+        </where>
+    </select>
+
+    <select id="getDataSearch2" resultType="Integer" parameterType="Map">
+        SELECT COUNT (*) FROM WARN_CENTER_DEVICE_STAT warn ,DEVICE_BASE_INFO dev,DATA_DICTIONARY_CHAR dic WHERE warn.DEVICE_ID=dev.DEVICE_ID AND dev.SECTION_ID=dic.DIC_KEY AND DIC_VALUE LIKE '%${searchKey}%'
+    </select>
+
+    <select id="getDataSearch3" resultType="Integer" parameterType="Map">
+        SELECT COUNT (*) FROM WARN_CENTER_DEVICE_STAT warn ,DEVICE_BASE_INFO dev,DATA_DICTIONARY_CHAR dic WHERE warn.WARN_TYPE=dev.DEVICE_ID AND dev.TYPE_ID=dic.DIC_KEY AND DIC_VALUE LIKE '%${searchKey}%'
+    </select>
+
+    <select id="getDataSearch4" resultType="Integer" parameterType="Map">
+        SELECT COUNT (*) FROM WARN_CENTER_DEVICE_STAT warn ,DEVICE_EXT_INFO dev,DATA_DICTIONARY_CHAR dic WHERE warn.DEVICE_ID=dev.DEVICE_ID AND dev.BUILD_MERCHANT_ID=dic.DIC_KEY AND DIC_VALUE LIKE '%${searchKey}%'
+    </select>
+
+    <select id="getDataSearchTime" resultType="Integer" parameterType="Map">
+        SELECT COUNT (*) FROM WARN_CENTER_DEVICE_STAT
+        <where>
+            <if test="endTime!=null and endTime!=''">
+                to_date(#{endTime},'yyyy-mm-dd hh24:mi:ss')>STAT_TIME
+            </if>
+            <if test="beginTime!=null and beginTime!=''">
+                AND STAT_TIME>to_date(#{beginTime},'yyyy-mm-dd hh24:mi:ss')
+            </if>
+        </where>
+    </select>
+
+
+
+
+
+
+</mapper>

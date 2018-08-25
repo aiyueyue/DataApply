@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ahkeli.myBatisMapper.WarnCenterLevelMapper" >
+    <select id="selectOnePage" parameterType="Map" resultType="java.util.HashMap">
+
+        select WARN_LEVEL_ID, WARN_LEVEL,LOSE_TIME_MIN,CREATE_USER,to_char(CREATE_TIME,'yyyy-MM-dd HH24:mi:ss') CREATE_TIME,IS_VALID,WARN_LEVEL_DESC,LOSE_TIME_MAX
+        from
+        (
+        select tempTable.*, rownum as num from
+        (
+        select
+        WARN_LEVEL_ID, WARN_LEVEL,LOSE_TIME_MIN,CREATE_USER,CREATE_TIME,dic.DIC_VALUE IS_VALID,WARN_LEVEL_DESC,LOSE_TIME_MAX
+        from WARN_LEVEL_CONFIG warn , DATA_DICTIONARY dic WHERE warn.IS_VALID=dic.DIC_KEY AND dic.DIC_TYPE=3 AND IS_VALID=#{isValid}
+        <if test="beginTime!=null and beginTime!=''">
+            AND  CREATE_TIME>to_date(#{beginTime},'yyyy-mm-dd hh24:mi:ss')
+        </if>
+        <if test="searchKey!=null and searchKey!=''">
+             AND CREATER_USER LIKE '%${searchKey}%'
+        </if>
+        <if test="endTime!=null and endTime!=''">
+            AND to_date(#{endTime},'yyyy-mm-dd hh24:mi:ss')>CREATE_TIME
+        </if>
+
+        order by ${orderKey} ${orderType}
+        ) tempTable
+        ) tempTable2
+        where tempTable2.num between #{recordStartIndex} and #{recordEndIndex}
+    </select>
+
+    <!-- 通过设备类型查找（地磁，微波等）（目前实现）-->
+    <select id="selectOnePageSearch1" parameterType="Map" resultType="java.util.HashMap">
+        SELECT WARN_ID, WARN_TYPE,WARN_NO,WARN_SRC,WARN_SRC_TYPE,WARN_DESC,CREATE_TIME, DB_TIME,dic.DIC_VALUE WARN_STATUS, DEAL_STATUS,DEAL_USER,DEAL_DESC
+        FROM (
+        select WARN_ID,WARN_TYPE,WARN_NO,WARN_SRC,WARN_SRC_TYPE,WARN_DESC,to_char(CREATE_TIME,'yyyy-MM-dd HH24:mi:ss') CREATE_TIME,to_char(DB_TIME,'yyyy-MM-dd HH24:mi:ss') DB_TIME,WARN_STATUS,dic.DIC_VALUE DEAL_STATUS,DEAL_USER,DEAL_DESC
+        from
+        (
+        select WARN_ID,dic.DIC_VALUE WARN_TYPE,WARN_NO,WARN_SRC,WARN_SRC_TYPE,WARN_DESC,CREATE_TIME,DB_TIME,WARN_STATUS,DEAL_STATUS,DEAL_USER,DEAL_DESC, rownum as num from
+        (
+        select
+        WARN_ID,WARN_TYPE,WARN_NO,WARN_SRC,WARN_SRC_TYPE,WARN_DESC,CREATE_TIME,DB_TIME,WARN_STATUS,DEAL_STATUS,DEAL_USER,DEAL_DESC
+        from WARN_CENTER_DETAIL warn ,DATA_DICTIONARY dic
+        <where>
+            <if test="searchKey!=null and searchKey!=''">
+                warn.WARN_TYPE=dic.DIC_KEY AND DIC_VALUE LIKE '%${searchKey}%' AND dic.DIC_TYPE=0
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                AND to_date(#{endTime},'yyyy-mm-dd hh24:mi:ss')>CREATE_TIME
+            </if>
+            <if test="beginTime!=null and beginTime!=''">
+                AND CREATE_TIME>to_date(#{beginTime},'yyyy-mm-dd hh24:mi:ss')
+            </if>
+            <if test="deviceId!=null and deviceId!=''">
+                AND WARN_SRC=#{deviceId}
+            </if>
+        </where>
+        order by ${orderKey} ${orderType}
+        ) tempTable,DATA_DICTIONARY dic WHERE tempTable.WARN_TYPE=dic.DIC_KEY AND dic.DIC_TYPE=0
+        ) tempTable2,DATA_DICTIONARY dic
+        where tempTable2.num between #{recordStartIndex} and #{recordEndIndex} AND tempTable2.DEAL_STATUS=dic.DIC_KEY AND dic.DIC_TYPE=1
+        )temptable3,DATA_DICTIONARY dic WHERE temptable3.WARN_STATUS=dic.DIC_KEY AND dic.DIC_TYPE=2
+    </select>
+
+    <!-- 通过路段查找-->
+    <select id="selectOnePageSearch2" parameterType="Map" resultType="java.util.HashMap">
+        select WARN_ID,WARN_TYPE,WARN_NO,WARN_SRC,WARN_SRC_TYPE,WARN_DESC,to_char(CREATE_TIME,'yyyy-MM-dd HH:mm:ss') CREATE_TIME,to_char(DB_TIME,'yyyy-MM-dd HH:mm:ss') DB_TIME,WARN_STATUS,DEAL_STATUS,DEAL_USER,DEAL_DESC
+        from
+        (
+        select tempTable.*, rownum as num from
+        (
+        select
+        WARN_ID,WARN_TYPE,WARN_NO,WARN_SRC,WARN_SRC_TYPE,WARN_DESC,CREATE_TIME,DB_TIME,WARN_STATUS,DEAL_STATUS,DEAL_USER,DEAL_DESC
+        from WARN_CENTER_DETAIL warn ,DEVICE_BASE_INFO dev,DATA_DICTIONARY_CHAR dic WHERE warn.WARN_TYPE=dev.DEVICE_ID AND dev.SECTION_ID=dic.DIC_KEY AND DIC_VALUE LIKE '%${searchKey}%'
+        order by ${orderKey} ${orderType}
+        ) tempTable
+        ) tempTable2
+        where tempTable2.num between #{recordStartIndex} and #{recordEndIndex}
+    </select>
+
+
+    <!-- 通过时间查找-->
+    <select id="selectOnePageSearchTime" parameterType="Map" resultType="java.util.HashMap">
+        select WARN_ID, WARN_TYPE,WARN_NO,WARN_SRC,WARN_SRC_TYPE,WARN_DESC,CREATE_TIME, DB_TIME,dic.DIC_VALUE WARN_STATUS, DEAL_STATUS,DEAL_USER,DEAL_DESC
+        FROM(
+        select WARN_ID, WARN_TYPE,WARN_NO,WARN_SRC,WARN_SRC_TYPE,WARN_DESC,to_char(CREATE_TIME,'yyyy-MM-dd HH24:mi:ss') CREATE_TIME,to_char(DB_TIME,'yyyy-MM-dd HH24-mi-ss') DB_TIME,WARN_STATUS,dic.DIC_VALUE DEAL_STATUS,DEAL_USER,DEAL_DESC
+        from
+        (
+        select tempTable.*, rownum as num from
+        (
+        select
+        WARN_ID,dic.DIC_VALUE WARN_TYPE,WARN_NO,WARN_SRC,WARN_SRC_TYPE,WARN_DESC,CREATE_TIME,DB_TIME,WARN_STATUS, DEAL_STATUS, DEAL_USER,DEAL_DESC
+        from WARN_CENTER_DETAIL warn , DATA_DICTIONARY dic WHERE warn.WARN_TYPE=dic.DIC_KEY AND dic.DIC_TYPE=0
+        <if test="endTime!=null and endTime!=''">
+            AND to_date(#{endTime},'yyyy-mm-dd hh24:mi:ss')>CREATE_TIME
+        </if>
+        <if test="beginTime!=null and beginTime!=''">
+            AND CREATE_TIME>to_date(#{beginTime},'yyyy-mm-dd hh24:mi:ss')
+        </if>
+        <if test="deviceId!=null and deviceId!=''">
+            AND WARN_SRC=#{deviceId}
+        </if>
+        order by ${orderKey} ${orderType}
+        ) tempTable
+        ) tempTable2,DATA_DICTIONARY dic
+        where tempTable2.num between #{recordStartIndex} and #{recordEndIndex} AND tempTable2.DEAL_STATUS=dic.DIC_KEY AND dic.DIC_TYPE=1
+        )temptable3,DATA_DICTIONARY dic WHERE temptable3.WARN_STATUS=dic.DIC_KEY AND dic.DIC_TYPE=2
+    </select>
+
+
+
+
+
+
+    <select id="getDataSize" resultType="Integer">
+        select count(*) from WARN_LEVEL_CONFIG WHERE  IS_VALID=#{isValid}
+            <if test="beginTime!=null and beginTime!=''">
+                AND  CREATE_TIME>to_date(#{beginTime},'yyyy-mm-dd hh24:mi:ss')
+            </if>
+            <if test="searchKey!=null and searchKey!=''">
+                AND CREATER_USER LIKE '%${searchKey}%'
+            </if>
+            <if test="endTime!=null and endTime!=''">
+                AND to_date(#{endTime},'yyyy-mm-dd hh24:mi:ss')>CREATE_TIME
+            </if>
+
+    </select>
+
+
+    <select id="getDataSearchTime" resultType="Integer" parameterType="Map">
+        SELECT COUNT (*) FROM WARN_LEVEL_CONFIG
+        <where>
+            <if test="endTime!=null and endTime!=''">
+                to_date(#{endTime},'yyyy-mm-dd hh24:mi:ss')>CREATE_TIME
+            </if>
+            <if test="beginTime!=null and beginTime!=''">
+                AND CREATE_TIME>to_date(#{beginTime},'yyyy-mm-dd hh24:mi:ss')
+            </if>
+            <if test="deviceId!=null and deviceId!=''">
+                AND WARN_SRC=#{deviceId}
+            </if>
+        </where>
+    </select>
+
+
+
+
+
+
+
+</mapper>

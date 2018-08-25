@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ahkeli.myBatisMapper.TabelTestDataMapper" >
+    <resultMap id="BaseResultMap" type="com.ahkeli.model.TabelTestData" >
+        <id column="DATA_ID" property="dataId" jdbcType="DECIMAL" />
+        <result column="VEHICLE_ID" property="vehicleId" jdbcType="VARCHAR" />
+        <result column="VEHICLE_LICENSE_ID" property="vehicleLicenseId" jdbcType="VARCHAR" />
+        <result column="VEHICLE_COLOE_ID" property="vehicleColoeId" jdbcType="DECIMAL" />
+        <result column="VEHICLE_WARN_SIGN" property="vehicleWarnSign" jdbcType="DECIMAL" />
+        <result column="VEHICLE_DEVICE_STATUS" property="vehicleDeviceStatus" jdbcType="DECIMAL" />
+        <result column="VEHICLE_SERVICE_STATUS" property="vehicleServiceStatus" jdbcType="DECIMAL" />
+        <result column="LOCATION_LONG" property="locationLong" jdbcType="DECIMAL" />
+        <result column="LOCATION_LATI" property="locationLati" jdbcType="DECIMAL" />
+        <result column="LOCATION_HEIGHT" property="locationHeight" jdbcType="DECIMAL" />
+        <result column="AVERAGE_SPEED" property="averageSpeed" jdbcType="DECIMAL" />
+        <result column="VEHICLE_DIRECTION" property="vehicleDirection" jdbcType="DECIMAL" />
+        <result column="VEHICLE_DIRECTION_ANGLE" property="vehicleDirectionAngle" jdbcType="DECIMAL" />
+        <result column="POSITION_TIME" property="positionTime" jdbcType="TIMESTAMP" />
+        <result column="INSERT_TIME" property="insertTime" jdbcType="TIMESTAMP" />
+        <result column="DEAL_TIME" property="dealTime" jdbcType="TIMESTAMP" />
+        <result column="IS_DEAL" property="isDeal" jdbcType="DECIMAL" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        DATA_ID, VEHICLE_ID, VEHICLE_LICENSE_ID, VEHICLE_COLOE_ID, VEHICLE_WARN_SIGN, VEHICLE_DEVICE_STATUS,
+        VEHICLE_SERVICE_STATUS, LOCATION_LONG, LOCATION_LATI, LOCATION_HEIGHT, AVERAGE_SPEED,
+        VEHICLE_DIRECTION, VEHICLE_DIRECTION_ANGLE, POSITION_TIME, INSERT_TIME, DEAL_TIME,
+        IS_DEAL
+    </sql>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from DEVICE_FCD_DATA
+    </select>
+    <select id="selectOnePage" parameterType="Map" resultType="java.util.HashMap">
+        select data_id,vehicle_id,average_speed
+        from
+        (select
+        data_id,vehicle_id,average_speed,rownum as num
+        from DEVICE_FCD_DATA
+        order by ${orderKey} ${orderType}
+        ) tempTable
+        where tempTable.num between #{recordStartIndex} and #{recordEndIndex}
+    </select>
+    <select id="getDataSize" resultType="Integer">
+        select count(*) from DEVICE_FCD_DATA
+    </select>
+</mapper>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ahkeli.myBatisMapper.GetDicConfigData" >
+
+    <select id="selectOnePage" parameterType="Map" resultType="java.util.HashMap">
+        select dic_id,parent_id,dic_ch_name,dic_value,dic_desc
+        from
+            (
+                select tempTable.*, rownum as num from
+                (
+                    select
+                    dic_id,parent_id,dic_ch_name,dic_value,dic_desc
+                    from DIC_CONF
+                    order by ${orderKey} ${orderType}
+                ) tempTable
+            ) tempTable2
+        where tempTable2.num between #{recordStartIndex} and #{recordEndIndex}
+    </select>
+
+    <select id="getDataSize" resultType="Integer">
+        select count(*) from DIC_CONF
+    </select>
+    <select id="selectOnePageSearch" parameterType="Map" resultType="java.util.HashMap">
+        select dic_id,parent_id,dic_ch_name,dic_value,dic_desc
+        from
+        (
+        select tempTable.*, rownum as num from
+        (
+        select
+        dic_id,parent_id,dic_ch_name,dic_value,dic_desc
+        from DIC_CONF
+        where dic_ch_name like '%${searchKey}%'
+        order by ${orderKey} ${orderType}
+        ) tempTable
+        ) tempTable2
+        where tempTable2.num between #{recordStartIndex} and #{recordEndIndex}
+    </select>
+
+    <select id="getDataSizeSearch" parameterType="Map" resultType="Integer">
+        select count(*) from DIC_CONF
+        where DIC_CH_NAME LIKE '%${searchKey}%'
+    </select>
+
+    <update id="updateDicValue" parameterType="Map">
+        update DIC_CONF
+        set dic_value = #{newDicValue}
+        where dic_id = #{dicId}
+    </update>
+</mapper>

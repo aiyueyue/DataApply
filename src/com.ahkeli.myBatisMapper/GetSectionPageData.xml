@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ahkeli.myBatisMapper.getSectionData" >
+
+    <select id="getTableData" resultType="java.util.HashMap">
+        select * from
+        (
+        select t.*,rownum rn from
+            (
+            select section_name,section_tpi,section_tpi_status from ALG_FCD_SECTION_TPI_R
+            order by section_tpi desc
+            )t
+        )t1
+        where t1.rn BETWEEN 0 and 20
+    </select>
+    <select id="selectPieChartData" resultType="java.util.HashMap">
+        select r.section_tpi_status,count(*) countNum
+        from ALG_FCD_SECTION_TPI_R  r
+        group by r.section_tpi_status
+    </select>
+</mapper>

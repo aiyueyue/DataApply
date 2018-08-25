@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ahkeli.myBatisMapper.RoleWarnConfigMapper" >
+    <resultMap id="BaseResultMap" type="com.ahkeli.model.RoleWarnConfig" >
+        <id column="ROLE_ID" property="roleId" jdbcType="DECIMAL" />
+        <result column="MESSAGE_WAY" property="messageWay" jdbcType="DECIMAL" />
+        <result column="RECORD_TIME" property="recordTime" jdbcType="TIMESTAMP" />
+        <result column="IS_VALID" property="isValid" jdbcType="DECIMAL" />
+        <result column="RECORD_USER" property="recordUser" jdbcType="VARCHAR" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        ROLE_ID, MESSAGE_WAY, RECORD_TIME, IS_VALID, RECORD_USER
+    </sql>
+    
+    <insert id="insertRoleConfig" parameterType="com.ahkeli.model.RoleWarnConfig">
+        INSERT INTO SYS_ROLE_WARN_CONFIG(ROLE_ID, MESSAGE_WAY, RECORD_TIME, IS_VALID, RECORD_USER) VALUES (#{roleId},#{messageWay},
+        sysdate,#{isValid},#{recordUser})
+    </insert>
+
+    <select id="selectRoleOldConfig" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT <include refid="Base_Column_List"/> FROM SYS_ROLE_WARN_CONFIG
+        WHERE ROLE_ID=#{roleId} AND MESSAGE_WAY=#{messageWay} AND IS_VALID=1
+    </select>
+    <update id="updateRoleConfig" parameterType="java.util.Map">
+        UPDATE SYS_ROLE_WARN_CONFIG SET IS_VALID=0 WHERE  ROLE_ID=#{roleId,jdbcType=NUMERIC} AND MESSAGE_WAY=#{messageWay,jdbcType=NUMERIC} AND IS_VALID=1
+    </update>
+</mapper>

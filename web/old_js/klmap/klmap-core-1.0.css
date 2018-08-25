@@ -1,0 +1,36 @@
+html,body{ 
+	height:100%;
+	margin:0px;
+	overflow: hidden;
+}
+.map{
+	width:100%; 
+	height:100%;
+}
+/*隐藏放大缩小按钮*/
+.olControlZoom,.olControlNoSelect{
+	display: none;
+}
+/*地图放大缩小按钮*/
+.zoom-up{
+	position:absolute; 
+	top:10px; 
+	left:10px; 
+	z-index:999;
+}
+.zoom-up-img{
+	background:url(zoomUp.png);
+	width:31px;
+	height:32px;
+}
+.zoom-down{
+	position:absolute; 
+	top:60px; 
+	left:10px; 
+	z-index:999;
+}
+.zoom-down-img{
+	background:url(zoomDown.png);
+	width:31px;
+	height:32px;
+}

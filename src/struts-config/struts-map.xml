@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+    <package name="." extends="struts-default" >
+        <action name="getMapImg" class="com.ahkeli.map.MapAction" method="getMapImg"/>
+        <action name="getJtllImage" class="com.ahkeli.map.JtllImageAction" method="getJtllImage"/>
+        <!--<action name="getInfo" class="com.ahkeli.map.MapAction" method="outputInfo"/>-->
+        <action name="getPrivilegeTree" class="com.ahkeli.menu.GetPrivilegeTreeAction" method="doGetPrivilegeTree"/>
+        <action name="Login" class="com.ahkeli.login.LoginAction" method="verify">
+        </action>
+        <action name="getGraphData" class="com.ahkeli.fusionChart.getTheChartData" method="getData"/>
+        <action name="getTableData" class="com.ahkeli.table.getTableDataAction" method="getTableData"/>
+        <action name="Logout" class="com.ahkeli.login.LogoutAction" method="logout"/>
+        <action name="ChangePassword" class="com.ahkeli.login.ChangePasswordAction" method="changePassword"/>
+        <action name="getSectionPageData" class="com.ahkeli.menu.GetSectionDataAction" method="getData"/>
+        <!-- 重要道路页面显示所对应的action-->
+        <action name="getImpRoadImg" class="com.ahkeli.menu.GetImportantRoadAction" method="getImgRoadImage"/>
+        <action name="getImpRoadReporting" class="com.ahkeli.menu.GetImpRoadReportingAction" method="getData"/>
+        <!-- 交叉路口拥堵情况监测对应的action-->
+        <action name="getCrossRoadInfo" class="com.ahkeli.menu.GetCrossRoadInfoAction" method="getCrossRoadInfo"/>
+        <action name="getCrossRoadReporting" class="com.ahkeli.menu.GetCrossRoadReportingAction" method="getData"/>
+        <!-- 监控部分-->
+        <action name="warnConfig" class="com.ahkeli.warnCenter.WarnConfigAction">
+            <result name="success">/warn_config.jsp</result>
+        </action>
+        <action name="warnConfigRoleSave" class="com.ahkeli.warnCenter.WarnConfigSaveAction" method="warnConfigSave">
+        </action>
+        <action name="warnConfigUserSave" class="com.ahkeli.warnCenter.WarnConfigSaveAction" method="warnConfigSave2"/>
+
+        <action name="searchUser" class="com.ahkeli.warnCenter.SearchUserAction" method="searchUser">
+            <result name="success">/warn_config.jsp</result>
+        </action>
+        <action name="createWarnDetailTable" class="com.ahkeli.warnCenter.CreateWarnDetailTableAction" method="getData"/>
+        <action name="createWarnStat" class="com.ahkeli.warnCenter.CreateWarnStatAction" method="getData"/>
+        <action name="createWarnHandle" class="com.ahkeli.warnCenter.CreateWarnHandleAction" method="warnHandle"/>
+        <action name="warnFresh" class="com.ahkeli.warnCenter.WarnFreshAction" method="warnFresh"/>
+        <action name="createWarnLevel" class="com.ahkeli.warnCenter.createWarnLevelAction" method="getData"/>
+        <!-- 参数配置对应的action-->
+        <!--<action name="getDicConfigData" class="com.ahkeli.system.GetDicConfigTableDataAction" method="getData"/>-->
+        <!--<action name="updateDicValue" class="com.ahkeli.system.GetDicConfigTableDataAction" method="updateValue"/>-->
+        <!-- 页面防非法用户对应action-->
+        <action name="pageVerify" class="com.ahkeli.comm.pageVerify.CheckUserForPageAction" method="check"/>
+        <!-- 角色管理对应的action-->
+        <!--<action name="roleManage" class="com.ahkeli.system.RoleManageAction" method="getData"/>-->
+        <!--<action name="deleteRole" class="com.ahkeli.system.RoleManageAction" method="deleteRole"/>-->
+        <!--<action name="storeRoleInfor" class="com.ahkeli.system.RoleManageAction" method="storeRole"/>-->
+        <!--<action name="storeRolePri" class="com.ahkeli.system.RoleManageAction" method="storeRolePri"/>-->
+        <!-- 用户管理所对应的action-->
+        <!--<action name="userManage" class="com.ahkeli.system.UserManageAction" method="getData"/>-->
+        <!--<action name="deleteUser" class="com.ahkeli.system.UserManageAction" method="deleteUser"/>-->
+    </package>
+</struts>

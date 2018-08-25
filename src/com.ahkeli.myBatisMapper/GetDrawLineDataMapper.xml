@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ahkeli.myBatisMapper.getDrawLineData">
+    <!-- old version -->
+    <!--<select id="selectDrawLineData"  resultType="java.util.HashMap">
+        select t.sectionid id, nvl(t1.status,0)status ,nvl(t1.travelspeed ,200) speed,t2.roadname roadName,(t2.type) roadType
+        ,(t2.shape) XY,(t3.statuscolor) color
+        from td_zz.td_fcd_status t1,nt_zz.nt_section_t t,nt_zz.nt_fcdprocessed_t t2,nt_zz.tb_speedregion t3
+        where t.sectionid=t1.sectionid and t2.fcdid=t1.sectionid and (t2.type=t3.roadtype and t1.status=t3.status)
+        order by t1.status desc
+    </select>-->
+    <select id="drawSectionMapData" resultType="java.util.HashMap">
+        select t_result.section_id,t_result.section_tpi_status status,t_result.avg_speed speed,t_result.section_name roadName,
+        t_result.roadtype,t_result.shape XY,t_result.statuscolor color
+        from (select *
+        from ALG_FCD_SECTION_TPI_R t1,nt_zz.nt_section_t t,nt_zz.tb_speedregion t3
+        where t.sectionid=t1.section_id and (t.type=t3.roadtype and t1.section_tpi_status=t3.status)
+        order by t1.section_tpi_status desc) t_result
+    </select>
+</mapper>

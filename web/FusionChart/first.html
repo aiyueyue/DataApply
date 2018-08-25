@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html" charset="GBK">
+    <title>My First FusionCharts</title>
+
+    <script src="/js/jquery-2.1.1.min.js" type="text/javascript" language="javascript"></script>
+    <script src="fusionChartJs/FusionCharts.js" type="text/javascript" language="javascript"></script>
+    <script src="showCharts.js" type="text/javascript" language="javascript"></script>
+    <script type="text/javascript">
+        var serviceUrl = "http://192.168.7.234:8080/";
+        $(document).ready(function () {
+            //处理柱状图
+            getJsonData(1);
+            //处理折线图
+            getJsonData(2);
+            //处理饼图
+            getJsonData(3);
+            //处理油表图
+            getJsonData(4);
+        })
+    </script>
+    <style>
+        #container{
+            width: 800px;
+            height: 800px;
+        }
+        #columnChart{
+            width: 400px;
+            height: 400px;
+            background: black;
+            float: left;
+        }
+        #lineChart{
+            width: 400px;
+            height: 400px;
+            background: green;
+            float: left;
+        }
+        #pieChart{
+            width: 400px;
+            height: 400px;
+            background: navy;
+            float: left;
+        }
+        #fuelChart{
+            width: 400px;
+            height: 400px;
+            background: yellow;
+            float: left;
+        }
+    </style>
+</head>
+<body bgcolor="#ffffff">
+    <div id="container">
+        <div id="columnChart"></div>
+        <div id="lineChart" ></div>
+        <div id="pieChart"></div>
+        <div id="fuelChart"></div>
+    </div>
+</body>
+</html>

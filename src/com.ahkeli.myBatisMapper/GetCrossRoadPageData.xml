@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ahkeli.myBatisMapper.getCrossRoadData">
+    <select id="getCrossInfo" resultType="java.util.HashMap">
+        select crossResult.intersection_id,crossResult.intersection_name,crossResult.intersection_tpi_status,crossResult.sampleNum,crossResult.db_time, aid.x, aid.y from nt_zz.nt_aidprocessed_t aid,
+            (
+            select distinct a.intersection_id,a.intersection_name,a.intersection_tpi_status,a.db_time,c.sampleNum from ALG_INTERSECTION_FCD_RESULT a
+            inner join
+                (select max(INTERSECTION_TPI_STATUS) as STATUS,INTERSECTION_ID,count(*) as sampleNum from ALG_INTERSECTION_FCD_RESULT
+                where DB_TIME BETWEEN to_date('2015-12-15 9:35:00','yyyy-mm-dd hh24:mi:ss') and to_date(
+                '2015-12-15 9:35:59','yyyy-mm-dd hh24:mi:ss')
+                group by INTERSECTION_ID ) c
+            on a.INTERSECTION_TPI_STATUS=c.STATUS and a.INTERSECTION_ID=c.INTERSECTION_ID
+            where a.intersection_tpi_status > 0 and DB_TIME BETWEEN to_date('2015-12-15 9:35:00','yyyy-mm-dd hh24:mi:ss')
+            and to_date('2015-12-15 9:35:59','yyyy-mm-dd hh24:mi:ss')
+            ) crossResult
+        where aid.aidid = crossResult.INTERSECTION_ID
+    </select>
+    <!-- reporting information query-->
+    <select id="getPieChartData" resultType="java.util.HashMap">
+        select r.intersection_tpi_status status,count(*) countNum
+        from
+        (
+            select crossResult.intersection_id,crossResult.intersection_name,crossResult.intersection_tpi_status
+            from nt_zz.nt_aidprocessed_t aid,
+            (
+            select distinct a.intersection_id,a.intersection_name,a.intersection_tpi_status, a.db_time from
+            ALG_INTERSECTION_FCD_RESULT a
+            inner join
+            (<!-- 该层查询为按路口id分组后获得每一组中拥堵最严重的那条记录的状态及对应的路口id -->
+            select max(INTERSECTION_TPI_STATUS) as STATUS,INTERSECTION_ID from ALG_INTERSECTION_FCD_RESULT
+            where DB_TIME BETWEEN to_date('2015-12-15 9:35:00','yyyy-mm-dd hh24:mi:ss') and to_date(
+            '2015-12-15 9:35:59','yyyy-mm-dd hh24:mi:ss')
+            group by INTERSECTION_ID
+            ) c
+            on a.INTERSECTION_TPI_STATUS=c.STATUS and a.INTERSECTION_ID=c.INTERSECTION_ID
+            where a.intersection_tpi_status > 0 and DB_TIME BETWEEN to_date('2015-12-15 9:35:00','yyyy-mm-dd hh24:mi:ss')
+            and to_date('2015-12-15 9:35:59','yyyy-mm-dd hh24:mi:ss')
+            ) crossResult
+            where aid.aidid = crossResult.INTERSECTION_ID
+        ) r
+        group by r.intersection_tpi_status
+    </select>
+    <select id="getTableData" resultType="java.util.HashMap">
+        select * from
+        (
+        select t.*,rownum rn from
+            (
+              select r.* from
+              (
+                select crossResult.intersection_id,crossResult.intersection_name,crossResult.intersection_tpi_status
+                from nt_zz.nt_aidprocessed_t aid,
+                (
+                select distinct a.intersection_id,a.intersection_name,a.intersection_tpi_status, a.db_time from
+                ALG_INTERSECTION_FCD_RESULT a
+                inner join
+                (
+                select max(INTERSECTION_TPI_STATUS) as STATUS,INTERSECTION_ID from ALG_INTERSECTION_FCD_RESULT
+                where DB_TIME BETWEEN to_date('2015-12-15 9:35:00','yyyy-mm-dd hh24:mi:ss') and to_date(
+                '2015-12-15 9:35:59','yyyy-mm-dd hh24:mi:ss')
+                group by INTERSECTION_ID
+                ) c
+                on a.INTERSECTION_TPI_STATUS=c.STATUS and a.INTERSECTION_ID=c.INTERSECTION_ID
+                where a.intersection_tpi_status > 0 and DB_TIME BETWEEN to_date('2015-12-15 9:35:00','yyyy-mm-dd hh24:mi:ss')
+                and to_date('2015-12-15 9:35:59','yyyy-mm-dd hh24:mi:ss')
+                ) crossResult
+                where aid.aidid = crossResult.INTERSECTION_ID
+              ) r
+            order by r.intersection_tpi_status desc
+            )t
+        )t1
+        where t1.rn BETWEEN 0 and 20
+    </select>
+    <select id="getCrossSectionId" resultType="java.util.HashMap">
+        select aid.aidid ,aid.entersectionids from nt_zz.nt_aidprocessed_t aid,(
+        select INTERSECTION_ID from ALG_INTERSECTION_FCD_RESULT
+        group by INTERSECTION_ID) t
+        where aid.aidid = t.intersection_id
+    </select>
+    <select id="getCrossSectionInfo" parameterType="list" resultType="java.util.HashMap">
+        select r.sectionid,r.name,r.direction,r.length from nt_zz.nt_section_t r
+        where r.sectionid in
+        <foreach item="item" collection="list" separator="," open="(" close=")" index="">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

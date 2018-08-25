@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ahkeli.myBatisMapper.UserInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.ahkeli.model.UserInfo" >
+    <id column="USER_ID" property="userId" jdbcType="DECIMAL" />
+    <result column="USER_NO" property="userNo" jdbcType="VARCHAR" />
+    <result column="IS_NO_PWD" property="isNoPwd" jdbcType="DECIMAL" />
+    <result column="USER_PASSWORD" property="userPassword" jdbcType="VARCHAR" />
+    <result column="USER_NAME" property="userName" jdbcType="VARCHAR" />
+    <result column="RELOGIN_FLAG" property="reloginFlag" jdbcType="DECIMAL" />
+    <result column="ALLOW_BEGIN" property="allowBegin" jdbcType="TIMESTAMP" />
+    <result column="ALLOW_END" property="allowEnd" jdbcType="TIMESTAMP" />
+    <result column="PASS_TIME" property="passTime" jdbcType="TIMESTAMP" />
+    <result column="EXPIRE_TIME" property="expireTime" jdbcType="TIMESTAMP" />
+    <result column="VALID_FLAG" property="validFlag" jdbcType="DECIMAL" />
+    <result column="USER_STATUS" property="userStatus" jdbcType="DECIMAL" />
+    <result column="CONTACT_PHONE" property="contactPhone" jdbcType="VARCHAR" />
+    <result column="MAX_ERRNUM" property="maxErrnum" jdbcType="DECIMAL" />
+    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+    <result column="USER_ICON" property="userIcon" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    USER_ID, USER_NO, IS_NO_PWD, USER_PASSWORD, USER_NAME, RELOGIN_FLAG, ALLOW_BEGIN, 
+    ALLOW_END, PASS_TIME, EXPIRE_TIME, VALID_FLAG, USER_STATUS, CONTACT_PHONE, MAX_ERRNUM, 
+    REMARK,USER_ICON
+  </sql>
+  <select id="selectUserInfo" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from SYS_USER_INFO
+  </select>
+  <select id="selectTheUser" parameterType="Map" resultMap="BaseResultMap">
+     select
+     <include refid="Base_Column_List" />
+     from SYS_USER_INFO
+     where USER_ID = #{userId}
+  </select>
+    <update id="updatePassword" parameterType="Map">
+        update SYS_USER_INFO
+        set IS_NO_PWD = #{isNoPassword},USER_PASSWORD = #{newPassword}
+        where user_id = #{userId}
+    </update>
+  <select id="selectTheUserInfo" parameterType="String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from SYS_USER_INFO
+    where USER_NO = #{userName}
+  </select>
+
+  <select id="getCountOfUser" resultType="java.lang.Integer">
+    SELECT COUNT (*)FROM SYS_USER_INFO
+  </select>
+
+  <select id="selectPageUser" parameterType="java.util.Map" resultMap="BaseResultMap">
+    select * from ( select a.*, rownum as rn from SYS_USER_INFO a)  b  where b.rn between #{startNum} and #{endNum}
+  </select>
+
+  <select id="selectByNo" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select * FROM SYS_USER_INFO WHERE USER_NO=#{userNo,jdbcType=VARCHAR}
+  </select>
+
+  <select id="selectByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+    SELECT * FROM SYS_USER_INFO WHERE USER_NAME=#{userName,jdbcType=VARCHAR}
+  </select>
+</mapper>

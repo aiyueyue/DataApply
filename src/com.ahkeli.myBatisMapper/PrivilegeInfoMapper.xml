@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ahkeli.myBatisMapper.PrivilegeInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.ahkeli.model.PrivilegeInfo" >
+    <id column="PRIVILEGE_ID" property="privilegeId" jdbcType="DECIMAL" />
+    <result column="PRIVILEGE_NAME" property="privilegeName" jdbcType="VARCHAR" />
+    <result column="STATUS" property="status" jdbcType="DECIMAL" />
+    <result column="PARENT_PRIVILEGE" property="parentPrivilege" jdbcType="DECIMAL" />
+    <result column="NODE_TYPE" property="nodeType" jdbcType="DECIMAL" />
+    <result column="FUNCTION_URL" property="functionUrl" jdbcType="VARCHAR" />
+    <result column="PRI_ORDER" property="priOrder" jdbcType="DECIMAL" />
+    <result column="CREATE_TIME" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="CREATE_USER" property="createUser" jdbcType="VARCHAR" />
+    <result column="IMG_URL" property="imgUrl" jdbcType="VARCHAR" />
+    <result column="IMG_TYPE" property="imgType" jdbcType="DECIMAL" />
+    <result column="REMARK" property="remark" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    PRIVILEGE_ID, PRIVILEGE_NAME, STATUS, PARENT_PRIVILEGE, NODE_TYPE, FUNCTION_URL, 
+    PRI_ORDER, CREATE_TIME, CREATE_USER, IMG_URL, IMG_TYPE, REMARK
+  </sql>
+  <select id="selectPrivilegeInfo" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from SYS_PRIVILEGE_INFO
+  </select>
+</mapper>
